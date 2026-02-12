@@ -1,0 +1,11 @@
+{
+  "name": "靈性塔羅占卜",
+  "short_name": "塔羅",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#d4af37",
+  "icons": [
+    { "src": "icon.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
