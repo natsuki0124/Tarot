@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>塔羅占卜</title>
+    <title>神秘學塔羅</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --gold: #d4af37;
             --bg: #0d0d12;
-            --card-w: 65px;  /* 適合 iPhone 寬度 */
+            --card-w: 65px;
             --card-h: 110px;
         }
 
         body {
             background-color: var(--bg);
             color: #eee;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, "PingFang TC", sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -25,28 +25,64 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+            box-sizing: border-box;
         }
 
-        /* 初始狀態隱藏，只顯示按鈕 */
+        /* 儀式感文字區塊 */
+        #intro-ui {
+            text-align: center;
+            transition: opacity 0.6s ease;
+            z-index: 1500;
+        }
+
+        h1 { color: var(--gold); font-size: 1.8rem; letter-spacing: 4px; margin-bottom: 10px; }
+        
+        .guidelines {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #aaa;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .guidelines b { color: var(--gold); display: block; margin-bottom: 5px; font-size: 1rem; }
+
+        /* 按鈕樣式 */
+        #startBtn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: 0.3s;
+        }
+
+        /* 牌陣容器 */
         .deck-container {
-            position: relative;
+            position: absolute;
             width: 100%;
             height: 60vh;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.5s;
+            transition: opacity 0.8s;
+            pointer-events: none; /* 防止遮擋按鈕 */
         }
 
         .card {
             width: var(--card-w);
             height: var(--card-h);
             position: absolute;
-            transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
-            cursor: pointer;
         }
 
         .card-inner {
@@ -67,58 +103,55 @@
             backface-visibility: hidden;
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-sizing: border-box;
         }
 
         .card-front {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0d1b2a 100%);
+            background: #1a1a2e;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
         }
 
-        .card-back { background: white; transform: rotateY(180deg); }
-        .card-back img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .card-back { background: white; transform: rotateY(180deg); overflow: hidden; }
+        .card-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 大按鈕樣式 */
-        #startBtn {
-            padding: 15px 40px;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-            z-index: 1000;
-            transition: 0.3s;
-        }
-        #startBtn:active { transform: scale(0.95); opacity: 0.8; }
-
-        /* 結果面板 */
+        /* 結果顯示 */
         #result-panel {
-            position: absolute;
-            bottom: 5vh;
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 85%;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(20, 20, 25, 0.95);
             padding: 20px;
             border-radius: 20px;
             text-align: center;
             border: 1px solid var(--gold);
             display: none;
-            backdrop-filter: blur(10px);
-            z-index: 2000;
+            backdrop-filter: blur(8px);
+            z-index: 3000;
         }
 
         .res-title { font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; }
-        .res-pos { font-weight: bold; margin-bottom: 10px; }
-        #resDesc { font-size: 0.95rem; line-height: 1.6; }
+        .res-pos { font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; }
+        #resDesc { font-size: 0.95rem; line-height: 1.6; color: #ddd; }
     </style>
 </head>
 <body>
 
-    <button id="startBtn" onclick="autoStart()">開始占卜</button>
+    <div id="intro-ui">
+        <h1>✨ 靈啟塔羅 ✨</h1>
+        <div class="guidelines">
+            <b>占卜須知：</b>
+            1. 尋找安靜空間，深呼吸三次。<br>
+            2. 屏除雜念，在心中默念您的問題。<br>
+            3. 準備好後點擊下方按鈕。
+        </div>
+        <button id="startBtn" onclick="runCeremony()">開始占卜</button>
+    </div>
 
     <div class="deck-container" id="deck"></div>
 
@@ -126,98 +159,95 @@
         <div class="res-title" id="resName"></div>
         <div class="res-pos" id="resPos"></div>
         <p id="resDesc"></p>
-        <button onclick="location.reload()" style="background:none; border:1px solid #555; color:#aaa; border-radius:15px; padding:5px 15px; margin-top:10px;">重置</button>
+        <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; border-radius:20px; padding:6px 20px; margin-top:15px; font-size: 0.8rem;">結束占卜</button>
     </div>
 
     <script>
-        const baseData = [
-            { name: "0 愚者", up: "冒險、新的開始、純真。", rev: "魯莽、疏忽、遲疑。" },
-            { name: "I 魔術師", up: "創造力、行動、意志力。", rev: "操縱、幻覺、缺乏計畫。" },
-            { name: "II 女祭司", up: "直覺、潛意識、智慧。", rev: "壓抑、膚淺、不聽直覺。" },
-            { name: "III 女皇", up: "豐盛、母性、感官慾望。", rev: "依賴、缺乏安全感、創意受阻。" },
-            { name: "IV 皇帝", up: "權威、結構、穩定。", rev: "專制、缺乏紀律、死板。" },
-            { name: "V 教皇", up: "傳統、信仰、導師。", rev: "反抗、叛逆、打破傳統。" },
-            { name: "VI 戀人", up: "選擇、和諧、關係。", rev: "不和、失衡、猶豫不決。" },
-            { name: "VII 戰車", up: "勝利、意志、克服障礙。", rev: "失控、侵略性、方向錯誤。" },
-            { name: "VIII 力量", up: "勇氣、耐性、內在力量。", rev: "軟弱、自負、恐懼。" },
-            { name: "IX 隱士", up: "孤獨、內省、尋求真理。", rev: "孤立、偏執、退縮。" },
-            { name: "X 命運之輪", up: "命運、轉折點、好運。", rev: "厄運、抵抗改變、壞運氣。" },
-            { name: "XI 正義", up: "平衡、公平、真相。", rev: "不公、偏見、不誠實。" },
-            { name: "XII 倒吊人", up: "犧牲、新視角、停滯。", rev: "徒勞、拖延、無法放手。" },
-            { name: "XIII 死神", up: "結束、轉型、放手。", rev: "恐懼改變、沈溺過去。" },
-            { name: "XIV 節制", up: "平衡、中庸、融合。", rev: "極端、不和諧、不平衡。" },
-            { name: "XV 惡魔", up: "執著、物質、誘惑。", rev: "覺醒、解脫、重獲自由。" },
-            { name: "XVI 高塔", up: "劇變、覺醒、突發災難。", rev: "避免災難、壓抑爆發。" },
-            { name: "XVII 星星", up: "希望、靈感、療癒。", rev: "失望、悲觀、失去信念。" },
-            { name: "XVIII 月亮", up: "焦慮、直覺、隱藏恐懼。", rev: "真相大白、克服恐懼。" },
-            { name: "XIX 太陽", up: "喜悅、成功、活力。", rev: "暫時受挫、過度自負。" },
-            { name: "XX 審判", up: "重生、覺醒、使命感。", rev: "懷疑、逃避責任。" },
-            { name: "XXI 世界", up: "圓滿、成就、整合。", rev: "不完整、延遲、停滯。" }
+        const tarotData = [
+            { n: "0 愚者", u: "新的開始、冒險、純真。", r: "魯莽、疏忽、遲疑。" },
+            { n: "I 魔術師", u: "創造力、行動、意志。", r: "操縱、缺乏計畫、疑慮。" },
+            { n: "II 女祭司", u: "直覺、潛意識、智慧。", r: "壓抑、膚淺、忽視直覺。" },
+            { n: "III 女皇", u: "豐盛、母性、創造力。", r: "依賴、安全感缺失、停滯。" },
+            { n: "IV 皇帝", u: "權威、結構、穩定。", r: "專制、死板、濫用權力。" },
+            { n: "V 教皇", u: "傳統、信仰、導師。", r: "叛逆、打破傳統、束縛。" },
+            { n: "VI 戀人", u: "選擇、和諧、關係。", r: "不和、失衡、感情疏離。" },
+            { n: "VII 戰車", u: "勝利、意志、自律。", r: "失控、侵略性、方向錯誤。" },
+            { n: "VIII 力量", u: "勇氣、毅力、慈悲。", r: "軟弱、自負、內心恐懼。" },
+            { n: "IX 隱士", u: "內省、孤獨、尋求真理。", r: "孤立、偏執、退縮。" },
+            { n: "X 命運之輪", u: "命運、轉折點、好運。", r: "厄運、抗拒改變、低潮。" },
+            { n: "XI 正義", u: "平衡、公平、真相。", r: "不公、偏見、推卸責任。" },
+            { n: "XII 倒吊人", u: "犧牲、新視角、停滯。", r: "徒勞、拖延、無法放手。" },
+            { n: "XIII 死神", u: "結束、轉型、放手。", r: "恐懼改變、停滯、沈溺過去。" },
+            { n: "XIV 節制", u: "平衡、中庸、耐心。", r: "極端、不和諧、失衡。" },
+            { n: "XV 惡魔", u: "執著、物質、誘惑。", r: "覺醒、解脫、重獲自由。" },
+            { n: "XVI 高塔", u: "劇變、覺醒、災難。", r: "避免災難、壓抑爆發。" },
+            { n: "XVII 星星", u: "希望、靈感、療癒。", r: "失望、悲觀、信念動搖。" },
+            { n: "XVIII 月亮", u: "焦慮、直覺、恐懼。", r: "真相大白、克服恐懼。" },
+            { n: "XIX 太陽", u: "喜悅、成功、活力。", r: "暫時受挫、過度自負。" },
+            { n: "XX 審判", u: "重生、覺醒、使命感。", r: "懷疑、逃避責任、延遲。" },
+            { n: "XXI 世界", u: "圓滿、成就、整合。", r: "不完整、延遲、停滯不前。" }
         ];
 
-        const tarotData = baseData.map((item, index) => ({ ...item, img: `${index}.jpg` }));
-        const deck = document.getElementById('deck');
+        const container = document.getElementById('deck');
         const cards = [];
 
         function init() {
             for (let i = 0; i < 22; i++) {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<div class="card-inner"><div class="card-face card-front">🔮</div><div class="card-face card-back"><img src="${tarotData[i].img}"></div></div>`;
-                deck.appendChild(card);
+                card.innerHTML = `<div class="card-inner"><div class="card-face card-front">🔮</div><div class="card-face card-back"><img src="${i}.jpg"></div></div>`;
+                container.appendChild(card);
                 cards.push(card);
             }
         }
 
-        async function autoStart() {
-            document.getElementById('startBtn').style.display = 'none';
-            deck.style.opacity = '1';
+        async function runCeremony() {
+            document.getElementById('intro-ui').style.opacity = '0';
+            setTimeout(() => { document.getElementById('intro-ui').style.display = 'none'; }, 600);
             
+            container.style.opacity = '1';
+            container.style.pointerEvents = 'auto';
+
             // 1. 自動切牌
-            cards.forEach((card, i) => {
-                const offset = i < 7 ? -80 : (i > 14 ? 80 : 0);
-                card.style.transform = `translateX(${offset}px)`;
+            cards.forEach((c, i) => {
+                const x = i < 7 ? -70 : (i > 14 ? 70 : 0);
+                c.style.transform = `translateX(${x}px) rotate(${Math.random()*6-3}deg)`;
             });
-            
             await new Promise(r => setTimeout(r, 800));
             
             // 2. 疊回
-            cards.forEach(card => card.style.transform = `translateX(0)`);
-            
+            cards.forEach(c => c.style.transform = 'none');
             await new Promise(r => setTimeout(r, 600));
 
-            // 3. 自動展開
-            const radius = 160; // iPhone 適合的半徑
-            const startAngle = 190;
-            const endAngle = -10;
-            const step = (startAngle - endAngle) / (cards.length - 1);
-
-            cards.forEach((card, i) => {
+            // 3. 自動扇形展開
+            const radius = 170;
+            const startAngle = 195;
+            const step = (195 - -15) / 21;
+            cards.forEach((c, i) => {
                 const angle = startAngle - (i * step);
                 const rad = angle * Math.PI / 180;
                 const x = Math.cos(rad) * radius;
-                const y = -Math.sin(rad) * radius + 50;
-                const rotate = 90 - angle;
-                card.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
-                card.onclick = () => selectCard(card, i);
+                const y = -Math.sin(rad) * radius + 60;
+                c.style.transform = `translate(${x}px, ${y}px) rotate(${90-angle}deg)`;
+                c.onclick = () => selectCard(c, i);
             });
         }
 
         function selectCard(card, index) {
             if (card.classList.contains('flipped')) return;
-            const isReversed = Math.random() > 0.5;
+            const isRev = Math.random() > 0.5;
             const data = tarotData[index];
 
-            cards.forEach(c => { if(c !== card) c.style.opacity = '0.1'; });
-            card.style.zIndex = 1000;
-            if (isReversed) card.classList.add('reversed');
+            cards.forEach(c => c.style.opacity = c === card ? '1' : '0.1');
+            card.style.zIndex = '2000';
+            if (isRev) card.classList.add('reversed');
             card.classList.add('flipped');
-            card.style.transform = `translate(0, -100px) scale(2.2) rotate(0deg)`;
+            card.style.transform = `translate(0, -120px) scale(2.3) rotate(0deg)`;
 
-            document.getElementById('resName').innerText = data.name;
-            document.getElementById('resPos').innerText = isReversed ? "── 逆位 ──" : "── 正位 ──";
-            document.getElementById('resPos').style.color = isReversed ? "#64ffda" : "#ff4d4d";
-            document.getElementById('resDesc').innerText = isReversed ? data.rev : data.up;
+            document.getElementById('resName').innerText = data.n;
+            document.getElementById('resPos').innerText = isRev ? "── 逆位 ──" : "── 正位 ──";
+            document.getElementById('resPos').style.color = isRev ? "#64ffda" : "#ff4d4d";
+            document.getElementById('resDesc').innerText = isRev ? data.r : data.u;
             document.getElementById('result-panel').style.display = 'block';
         }
 
