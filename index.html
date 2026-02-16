@@ -7,22 +7,20 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
 
     <script src="data.js"></script>
 
     <style>
         :root {
-            --gold: #b8962e; /* 針對白底加深的典雅金 */
-            --bg: #f8f9fa;   /* 質感米白背景 */
+            --gold: #b8962e; 
+            --bg: #f8f9fa;   
             --card-w: 68px;
             --card-h: 115px;
         }
 
         body {
             background-color: var(--bg);
-            color: #333; /* 深灰色文字，較不刺眼 */
+            color: #333; 
             font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
             margin: 0;
             display: flex;
@@ -35,7 +33,6 @@
             box-sizing: border-box;
         }
 
-        /* 初始儀式介面 */
         #intro-ui {
             text-align: center;
             transition: opacity 0.6s ease;
@@ -58,17 +55,17 @@
         #startBtn {
             padding: 16px 65px;
             background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
-            color: white; /* 按鈕文字改為白色更顯眼 */
+            color: white; 
             border: none;
             border-radius: 35px;
             font-size: 1.2rem;
             font-weight: bold;
             box-shadow: 0 6px 20px rgba(184, 150, 46, 0.3);
             transition: transform 0.2s;
+            cursor: pointer;
         }
         #startBtn:active { transform: scale(0.95); }
 
-        /* 牌陣容器 */
         .deck-container {
             position: absolute;
             width: 100%;
@@ -87,6 +84,7 @@
             position: absolute;
             transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
+            cursor: pointer;
         }
 
         .card-inner {
@@ -106,12 +104,11 @@
             height: 100%;
             backface-visibility: hidden;
             border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12); /* 改為較輕盈的陰影 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12); 
             border: 1px solid rgba(184, 150, 46, 0.2);
             box-sizing: border-box;
         }
 
-        /* 牌背：使用您上傳的 back.jpg */
         .card-front {
             background-image: url('back.jpg');
             background-size: cover;
@@ -122,7 +119,6 @@
         .card-back { background: white; transform: rotateY(180deg); overflow: hidden; }
         .card-back img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 結果面板：優化長文閱讀 (白色版) */
         #result-panel {
             position: fixed;
             bottom: 40px;
@@ -194,21 +190,31 @@
     <script>
         const container = document.getElementById('deck');
         const cards = [];
+        let shuffledIndices = [];
 
         function init() {
+            // 檢查 data.js 是否成功載入
             if (typeof tarotDeckData === 'undefined') {
-                alert('載入中或找不到 data.js，請確認檔案已正確上傳至 GitHub 並在同一個資料夾下。');
+                alert('找不到 tarotDeckData。請確保 data.js 檔案位於相同目錄，且開頭已刪除 export 字樣。');
                 return;
             }
 
+            // 1. 生成 0-21 索引並隨機打亂排序
+            shuffledIndices = Array.from({length: 22}, (_, i) => i);
+            shuffledIndices.sort(() => Math.random() - 0.5);
+
+            // 2. 建立卡牌元素
             for (let i = 0; i < 22; i++) {
+                const cardIndex = shuffledIndices[i]; 
                 const card = document.createElement('div');
                 card.className = 'card';
+                card.dataset.realIndex = cardIndex; // 儲存這張牌真實代表哪一張
+                
                 card.innerHTML = `
                     <div class="card-inner">
                         <div class="card-face card-front"></div>
                         <div class="card-face card-back">
-                            <img src="${i}.jpg">
+                            <img src="${cardIndex}.jpg">
                         </div>
                     </div>`;
                 container.appendChild(card);
@@ -223,18 +229,17 @@
             container.style.opacity = '1';
             container.style.pointerEvents = 'auto';
 
-            // 1. 自動洗牌
+            // 自動洗牌視覺效果
             cards.forEach((c, i) => {
                 const x = i < 7 ? -75 : (i > 14 ? 75 : 0);
                 c.style.transform = `translateX(${x}px) rotate(${Math.random()*10-5}deg)`;
             });
             await new Promise(r => setTimeout(r, 900));
             
-            // 2. 疊回
             cards.forEach(c => c.style.transform = 'none');
             await new Promise(r => setTimeout(r, 700));
 
-            // 3. 扇形展開
+            // 扇形展開（牌序已在 init 階段隨機化）
             const radius = 175;
             const startAngle = 195;
             const step = (195 - -15) / 21;
@@ -245,22 +250,25 @@
                 const y = -Math.sin(rad) * radius + 60;
                 const rotate = 90 - angle;
                 c.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
-                c.onclick = () => selectCard(c, i);
+                c.onclick = () => selectCard(c);
             });
         }
 
-        function selectCard(card, index) {
+        function selectCard(card) {
             if (card.classList.contains('flipped')) return;
+            
             const isRev = Math.random() > 0.5;
-            const data = tarotDeckData[index];
+            const realIndex = card.dataset.realIndex; // 取得正確的牌組索引
+            const data = tarotDeckData[realIndex];
 
+            // 視覺焦點
             cards.forEach(c => c.style.opacity = c === card ? '1' : '0.1');
             card.style.zIndex = '2000';
+            
             if (isRev) card.classList.add('reversed');
             card.classList.add('flipped');
             card.style.transform = `translate(0, -120px) scale(2.4) rotate(0deg)`;
 
-            // 延遲顯示面板，讓翻牌動畫跑完
             setTimeout(() => {
                 document.getElementById('resName').innerText = data.n;
                 document.getElementById('resPos').innerText = isRev ? "── 逆位 ──" : "── 正位 ──";
