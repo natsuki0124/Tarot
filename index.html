@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>神秘學：萊德偉特塔羅</title>
+    <title>塔羅牌占卜</title>
     <style>
         :root {
             --gold: #d4af37;
@@ -124,7 +124,7 @@
 <body>
 
     <header>
-        <h1>萊德偉特塔羅占卜</h1>
+        <h1>塔羅占卜</h1>
         <p>心誠則靈，請默念問題後開始</p>
     </header>
 
@@ -143,32 +143,37 @@
     </div>
 
     <script>
-        const tarotData = [
-            { name: "0 愚者 (The Fool)", img: "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", up: "冒險、新的開始、純真、自由。", rev: "魯莽、疏忽、遲疑、不負責任。" },
-            { name: "I 魔術師 (The Magician)", img: "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", up: "創造力、行動、意志力、潛能。", rev: "操縱、幻覺、缺乏計畫、能力受限。" },
-            { name: "II 女祭司 (The High Priestess)", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", up: "直覺、潛意識、智慧、神祕。", rev: "壓抑、膚淺、不聽內心聲音、隱藏秘密。" },
-            { name: "III 女皇 (The Empress)", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", up: "豐盛、母性、感官慾望、創造力。", rev: "依賴、缺乏安全感、創意受阻、過度保護。" },
-            { name: "IV 皇帝 (The Emperor)", img: "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", up: "權威、結構、父親形象、穩定。", rev: "專制、缺乏紀律、死板、濫用職權。" },
-            { name: "V 教皇 (The Hierophant)", img: "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", up: "傳統、信仰、導師、體制。", rev: "反抗、叛逆、打破傳統、死守教條。" },
-            { name: "VI 戀人 (The Lovers)", img: "https://upload.wikimedia.org/wikipedia/commons/3/3a/RWS_Tarot_06_Lovers.jpg", up: "選擇、和諧、關係、共鳴。", rev: "不和、失衡、猶豫不決、感情疏離。" },
-            { name: "VII 戰車 (The Chariot)", img: "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", up: "勝利、意志、克服障礙、自律。", rev: "失控、侵略性、方向錯誤、挫折感。" },
-            { name: "VIII 力量 (Strength)", img: "https://upload.wikimedia.org/wikipedia/commons/f/f2/RWS_Tarot_08_Strength.jpg", up: "勇氣、耐性、內在力量、慈悲。", rev: "軟弱、自負、恐懼、缺乏自信。" },
-            { name: "IX 隱士 (The Hermit)", img: "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", up: "孤獨、內省、尋求真理、引導。", rev: "孤立、偏執、過度沈溺於自我、退縮。" },
-            { name: "X 命運之輪 (Wheel of Fortune)", img: "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", up: "命運、轉折點、好運、業力。", rev: "厄運、抵抗改變、停滯不前、壞運氣。" },
-            { name: "XI 正義 (Justice)", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", up: "平衡、公平、真相、法律。", rev: "不公、偏見、推卸責任、不誠實。" },
-            { name: "XII 倒吊人 (The Hanged Man)", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", up: "犧牲、新視角、停滯、等待。", rev: "徒勞、拖延、逃避、無法放手。" },
-            { name: "XIII 死神 (Death)", img: "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", up: "結束、轉型、放手、新的開始。", rev: "恐懼改變、停滯、沈溺過去、痛苦的拖延。" },
-            { name: "XIV 節制 (Temperance)", img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", up: "平衡、中庸、融合、耐心。", rev: "極端、不和諧、缺乏溝通、不平衡。" },
-            { name: "XV 惡魔 (The Devil)", img: "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", up: "執著、物質、誘惑、束縛。", rev: "覺醒、解脫、放下物慾、重獲自由。" },
-            { name: "XVI 高塔 (The Tower)", img: "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", up: "劇變、覺醒、毀滅、突如其來的災難。", rev: "避免災難、恐懼改變、壓抑爆發。" },
-            { name: "XVII 星星 (The Star)", img: "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", up: "希望、靈感、療癒、平靜。", rev: "失望、悲觀、失去信念、創意枯竭。" },
-            { name: "XVIII 月亮 (The Moon)", img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", up: "焦慮、幻覺、直覺、隱藏的恐懼。", rev: "真相大白、克服恐懼、混亂結束。" },
-            { name: "XIX 太陽 (The Sun)", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", up: "喜悅、成功、活力、正向能量。", rev: "暫時受挫、過度自負、缺乏活力、憂鬱。" },
-            { name: "XX 審判 (Judgement)", img: "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", up: "重生、覺醒、使命感、釋放。", rev: "懷疑、逃避責任、猶豫不決。" },
-            { name: "XXI 世界 (The World)", img: "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", up: "圓滿、成就、整合、旅行。", rev: "不完整、延遲、缺乏收尾、停滯。" }
-        ];
+// 1. 先定義原始的牌名與牌義
+const baseData = [
+    { name: "0 愚者 (The Fool)", up: "冒險、新的開始、純真、自由。", rev: "魯莽、疏忽、遲疑、不負責任。" },
+    { name: "I 魔術師 (The Magician)", up: "創造力、行動、意志力、潛能。", rev: "操縱、幻覺、缺乏計畫、能力受限。" },
+    { name: "II 女祭司 (The High Priestess)", up: "直覺、潛意識、智慧、神祕。", rev: "壓抑、膚淺、不聽內心聲音、隱藏秘密。" },
+    { name: "III 女皇 (The Empress)", up: "豐盛、母性、感官慾望、創造力。", rev: "依賴、缺乏安全感、創意受阻、過度保護。" },
+    { name: "IV 皇帝 (The Emperor)", up: "權威、結構、父親形象、穩定。", rev: "專制、缺乏紀律、死板、濫用職權。" },
+    { name: "V 教皇 (The Hierophant)", up: "傳統、信仰、導師、體制。", rev: "反抗、叛逆、打破傳統、死守教條。" },
+    { name: "VI 戀人 (The Lovers)", up: "選擇、和諧、關係、共鳴。", rev: "不和、失衡、猶豫不決、感情疏離。" },
+    { name: "VII 戰車 (The Chariot)", up: "勝利、意志、克服障礙、自律。", rev: "失控、侵略性、方向錯誤、挫折感。" },
+    { name: "VIII 力量 (Strength)", up: "勇氣、耐性、內在力量、慈悲。", rev: "軟弱、自負、恐懼、缺乏自信。" },
+    { name: "IX 隱士 (The Hermit)", up: "孤獨、內省、尋求真理、引導。", rev: "孤立、偏執、過度沈溺於自我、退縮。" },
+    { name: "X 命運之輪 (Wheel of Fortune)", up: "命運、轉折點、好運、業力。", rev: "厄運、抵抗改變、停滯不前、壞運氣。" },
+    { name: "XI 正義 (Justice)", up: "平衡、公平、真相、法律。", rev: "不公、偏見、推卸責任、不誠實。" },
+    { name: "XII 倒吊人 (The Hanged Man)", up: "犧牲、新視角、停滯、等待。", rev: "徒勞、拖延、逃避、無法放手。" },
+    { name: "XIII 死神 (Death)", up: "結束、轉型、放手、新的開始。", rev: "恐懼改變、停滯、沈溺過去、痛苦的拖延。" },
+    { name: "XIV 節制 (Temperance)", up: "平衡、中庸、融合、耐心。", rev: "極端、不和諧、缺乏溝通、不平衡。" },
+    { name: "XV 惡魔 (The Devil)", up: "執著、物質、誘惑、束縛。", rev: "覺醒、解脫、放下物慾、重獲自由。" },
+    { name: "XVI 高塔 (The Tower)", up: "劇變、覺醒、毀滅、突如其來的災難。", rev: "避免災難、恐懼改變、壓抑爆發。" },
+    { name: "XVII 星星 (The Star)", up: "希望、靈感、療癒、平靜。", rev: "失望、悲觀、失去信念、創意枯竭。" },
+    { name: "XVIII 月亮 (The Moon)", up: "焦慮、幻覺、直覺、隱藏的恐懼。", rev: "真相大白、克服恐懼、混亂結束。" },
+    { name: "XIX 太陽 (The Sun)", up: "喜悅、成功、活力、正向能量。", rev: "暫時受挫、過度自負、缺乏活力、憂鬱。" },
+    { name: "XX 審判 (Judgement)", up: "重生、覺醒、使命感、釋放。", rev: "懷疑、逃避責任、猶豫不決。" },
+    { name: "XXI 世界 (The World)", up: "圓滿、成就、整合、旅行。", rev: "不完整、延遲、缺乏收尾、停滯。" }
+];
 
-        const deck = document.getElementById('deck');
+// 2. 自動將圖片路徑指向本地資料夾 (假設圖片為 0.jpg, 1.jpg...)
+const tarotData = baseData.map((item, index) => ({
+    ...item,
+    img: `${index}.jpg` 
+}));        const deck = document.getElementById('deck');
         const cards = [];
 
         // 初始化 22 張牌
