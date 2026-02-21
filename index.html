@@ -10,10 +10,9 @@
     <style>
         :root {
             --gold: #d4af37; 
-            --deep-blue: #1a1a2e;
             --bg: #0f0f1b;   
-            --card-w: 68px;
-            --card-h: 115px;
+            --card-w: 64px;
+            --card-h: 108px;
         }
 
         body {
@@ -34,88 +33,72 @@
 
         /* 介面與引導 */
         #intro-ui { text-align: center; z-index: 1500; width: 85%; }
-        h1 { color: var(--gold); font-size: 2.2rem; letter-spacing: 6px; margin-bottom: 40px; font-weight: bold; }
+        h1 { color: var(--gold); font-size: 2rem; letter-spacing: 6px; margin-bottom: 35px; font-weight: bold; }
         
-        /* 按鈕改為左側對齊 */
         .spread-menu { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .spread-btn {
-            padding: 18px 25px;
+            padding: 16px;
             background: rgba(255, 255, 255, 0.05);
             color: var(--gold);
             border: 1px solid var(--gold);
             border-radius: 12px;
             font-size: 1.1rem;
-            text-align: left; /* 文字左對齊 */
-            display: flex;
-            align-items: center;
+            text-align: center; 
+            font-weight: 500;
             -webkit-tap-highlight-color: transparent;
         }
-        .spread-btn::before { content: "✦"; margin-right: 15px; font-size: 0.8rem; opacity: 0.7; }
 
         #guide-msg {
             position: fixed;
-            top: calc(env(safe-area-inset-top) + 15px);
+            top: calc(env(safe-area-inset-top) + 10px);
             width: 100%;
             text-align: center;
-            padding: 10px 20px;
+            padding: 10px;
             color: var(--gold);
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             z-index: 4000;
             display: none;
-            box-sizing: border-box;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 0 0 10px rgba(0,0,0,1);
         }
 
         /* 卡牌容器 */
-        .deck-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: none;
-        }
+        .deck-container { position: relative; width: 100%; height: 100%; display: none; }
 
         .card {
             width: var(--card-w);
             height: var(--card-h);
             position: absolute;
             left: calc(50% - var(--card-w)/2);
-            top: 50%;
-            transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1.1);
+            top: 45%;
+            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
             cursor: pointer;
             z-index: 10;
         }
 
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
+        .card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; }
 
-        /* 標籤樣式：移至側邊 (左側) */
+        /* 標籤樣式 */
         .card-label {
             position: absolute;
             top: 50%;
-            right: calc(100% + 8px); /* 放在牌的左側 */
+            right: calc(100% + 5px);
             transform: translateY(-50%);
-            width: auto;
             white-space: nowrap;
             color: var(--gold);
-            font-size: 0.8rem;
-            font-weight: bold;
+            font-size: 0.75rem;
             opacity: 0;
             transition: opacity 0.5s;
-            pointer-events: none;
-            text-shadow: 0 1px 3px rgba(0,0,0,1);
-            writing-mode: vertical-lr; /* 直式排版更有質感，也可改回預設 */
-            letter-spacing: 2px;
+            writing-mode: vertical-lr;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 3px black;
         }
         .card.flipped .card-label { opacity: 1; }
-
         .card.flipped .card-inner { transform: rotateY(180deg); }
+
+        /* 重要：處理逆位旋轉 */
+        /* 當牌是逆位時，翻開後裡面的圖片旋轉 180 度，但牌框不動 */
         .card.is-reversed .card-back img { transform: rotate(180deg); }
 
         .card-face {
@@ -123,29 +106,45 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid rgba(212, 175, 55, 0.3);
             box-sizing: border-box;
+            overflow: hidden; /* 確保圖片旋轉時不會超出邊框 */
         }
 
-        .card-front { background: url('back.jpg') center/cover; }
-        .card-back { background: #000; transform: rotateY(180deg); overflow: hidden; }
+        /* 關鍵修正：牌背圖片的顯示 */
+        .card-front { 
+            background: #000; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 讓牌背圖片稍微大一點並置中，這樣旋轉 180 度時中心點（水晶球）會完全重合 */
+        .card-front img {
+            width: 120%; /* 稍微放大以覆蓋旋轉後的邊角 */
+            height: 120%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card-back { background: #000; transform: rotateY(180deg); }
         .card-back img { width: 101%; height: 101%; object-fit: cover; display: block; }
 
-        /* 結果面板 */
+        /* 解讀面板 */
         #result-panel {
             position: fixed;
             bottom: 0;
             width: 100%;
             background: rgba(10, 10, 20, 0.98);
-            padding: 25px 20px calc(env(safe-area-inset-bottom) + 20px) 20px;
+            padding: 20px 20px calc(env(safe-area-inset-bottom) + 15px) 20px;
             border-top: 1px solid var(--gold);
-            border-radius: 20px 20px 0 0;
             display: none;
             z-index: 5000;
             overflow-y: auto;
-            max-height: 60vh;
+            max-height: 38vh;
             box-sizing: border-box;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -156,11 +155,10 @@
     <div id="intro-ui">
         <h1>塔羅占卜</h1>
         <div class="spread-menu">
-            <button class="spread-btn" onclick="prepareDeck(1, 'YESNO')">單張：YES / NO</button>
-            <button class="spread-btn" onclick="prepareDeck(1, 'RESULT')">單張：最終結果</button>
-            <button class="spread-btn" onclick="prepareDeck(3, 'TIMELINE')">三張：過去、現在與未來</button>
-            <button class="spread-btn" onclick="prepareDeck(3, 'RELATION')">三張：關係牌陣</button>
-            <button class="spread-btn" onclick="prepareDeck(5, 'CHOICE')">五張：二選一牌陣</button>
+            <button class="spread-btn" onclick="prepareDeck(1, 'RESULT')">精準預測</button>
+            <button class="spread-btn" onclick="prepareDeck(3, 'TIMELINE')">前因後果</button>
+            <button class="spread-btn" onclick="prepareDeck(3, 'RELATION')">人際關係</button>
+            <button class="spread-btn" onclick="prepareDeck(5, 'CHOICE')">抉擇判斷</button>
         </div>
     </div>
 
@@ -168,7 +166,7 @@
 
     <div id="result-panel">
         <div id="resContent"></div>
-        <button style="width:100%; margin-top:20px; background:var(--gold); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; font-size:1.1rem;" onclick="location.reload()">結束占卜</button>
+        <button style="width:100%; margin-top:15px; background:var(--gold); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;" onclick="location.reload()">結束占卜</button>
     </div>
 
     <script>
@@ -178,15 +176,17 @@
         let cards = [];
 
         function init() {
+            if (typeof tarotDeckData === 'undefined') return;
             const indices = Array.from({length: 22}, (_, i) => i).sort(() => Math.random() - 0.5);
             for (let i = 0; i < 22; i++) {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.dataset.idx = indices[i];
+                // 結構修正：card-front 裡面加入 img 標籤以便單獨旋轉圖片
                 card.innerHTML = `
                     <div class="card-label"></div>
                     <div class="card-inner">
-                        <div class="card-face card-front"></div>
+                        <div class="card-face card-front"><img src="back.jpg" class="back-img"></div>
                         <div class="card-face card-back"><img src="${indices[i]}.jpg"></div>
                     </div>`;
                 deckContainer.appendChild(card);
@@ -199,23 +199,38 @@
             document.getElementById('intro-ui').style.display = 'none';
             deckContainer.style.display = 'block';
             guideMsg.style.display = 'block';
+            guideMsg.innerText = "正在進行洗牌儀式...";
 
-            // 洗牌
-            cards.forEach(c => {
-                c.style.transform = `translate(${Math.random()*40-20}px, ${Math.random()*40-20}px) rotate(${Math.random()*360}deg)`;
-            });
-            await new Promise(r => setTimeout(r, 800));
+            for(let r=0; r<3; r++) {
+                cards.forEach((c, i) => {
+                    const x = i < 11 ? -80 : 80;
+                    const isReversing = Math.random() > 0.5;
+                    c.dataset.isBackReversed = isReversing ? "true" : "false";
+                    
+                    // 動畫時只做位置移動，不做整張牌旋轉，避免使用者追蹤
+                    c.style.transform = `translate(${x}px, 0)`;
+                    
+                    // 關鍵：只旋轉內部的牌背圖片
+                    const img = c.querySelector('.back-img');
+                    img.style.transform = isReversing ? `rotate(180deg)` : `rotate(0deg)`;
+                });
+                await new Promise(res => setTimeout(res, 600));
+                cards.forEach(c => c.style.transform = `translate(0, 0)`);
+                await new Promise(res => setTimeout(res, 500));
+            }
 
             // 直線雙排攤牌
             cards.forEach((c, i) => {
                 let x, y;
                 if (i < 11) {
-                    x = (i - 5) * 34;
-                    y = 110; 
+                    x = (i - 5) * 32;
+                    y = 100;
                 } else {
-                    x = (i - 16) * 34;
-                    y = 240;
+                    x = (i - 16) * 32;
+                    y = 210;
                 }
+                
+                // 攤牌時整張卡片 rotate(0deg)，僅靠內部圖片決定正反
                 c.style.transform = `translate(${x}px, ${y}px) rotate(0deg)`;
                 c.onclick = () => selectCard(c);
             });
@@ -225,13 +240,13 @@
         function updateGuide() {
             const labels = getLabels(session.type);
             guideMsg.innerText = session.selected < session.count ? 
-                `第 ${session.selected + 1} 張：請抽出代表「${labels[session.selected]}」的牌` : `揭示中...`;
+                `請抽出「${labels[session.selected]}」的牌` : `揭示中...`;
         }
 
         function selectCard(card) {
             if (card.classList.contains('flipped') || session.selected >= session.count) return;
 
-            const isRev = Math.random() > 0.5;
+            const isRev = card.dataset.isBackReversed === "true"; 
             const data = tarotDeckData[card.dataset.idx];
             const labels = getLabels(session.type);
             const currentLabel = labels[session.selected];
@@ -241,27 +256,27 @@
             if (isRev) card.classList.add('is-reversed');
             card.classList.add('flipped');
 
-            // 抽出的牌定位
-            let pos = { x: 0, y: -130 }; 
+            let pos = { x: 0, y: -160 }; 
 
             if (session.type === 'TIMELINE') {
                 pos.x = (session.selected - 2) * 85;
-                pos.y = -130;
+                pos.y = -160;
             } 
             else if (session.type === 'RELATION') {
-                if (session.selected === 1) pos = { x: -90, y: -130 };
-                if (session.selected === 2) pos = { x: 90, y: -130 };
-                if (session.selected === 3) pos = { x: 0, y: -130 };
+                if (session.selected === 1) pos = { x: -90, y: -160 };
+                if (session.selected === 2) pos = { x: 90, y: -160 };
+                if (session.selected === 3) pos = { x: 0, y: -160 };
             } 
             else if (session.type === 'CHOICE') {
-                if (session.selected === 1) pos = { x: 0, y: -60 };
-                if (session.selected === 2) pos = { x: -85, y: -150 };
-                if (session.selected === 3) pos = { x: -85, y: -285 };
-                if (session.selected === 4) pos = { x: 85, y: -150 };
-                if (session.selected === 5) pos = { x: 85, y: -285 };
+                if (session.selected === 1) pos = { x: 0, y: -80 };
+                if (session.selected === 2) pos = { x: -85, y: -170 };
+                if (session.selected === 3) pos = { x: -85, y: -290 };
+                if (session.selected === 4) pos = { x: 85, y: -170 };
+                if (session.selected === 5) pos = { x: 85, y: -290 };
             }
 
             card.style.zIndex = 1000 + session.selected;
+            // 確保翻開後的牌也是 rotate(0deg)，正逆位由 card.is-reversed 控制裡面的圖片
             card.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1.0) rotate(0deg)`;
 
             session.results.push({ label: currentLabel, name: data.n, pos: isRev ? '逆位' : '正位', desc: isRev ? data.r : data.u });
@@ -276,8 +291,7 @@
 
         function getLabels(type) {
             const dict = {
-                'YESNO': ['結果'],
-                'RESULT': ['最終結果'],
+                'RESULT': ['結果'],
                 'TIMELINE': ['過去', '現在', '未來'],
                 'RELATION': ['你本人', '對方', '關係現狀'],
                 'CHOICE': ['現狀', '選項A', '選項A結果', '選項B', '選項B結果']
@@ -289,15 +303,15 @@
             guideMsg.style.display = 'none';
             const panel = document.getElementById('result-panel');
             const content = document.getElementById('resContent');
-            let html = `<h2 style="color:var(--gold); text-align:center; margin:0 0 20px 0;">占卜結果</h2>`;
+            let html = `<h2 style="color:var(--gold); text-align:center; margin:0 0 15px 0; font-size:1.2rem;">占卜結果</h2>`;
             session.results.forEach(res => {
                 html += `
-                <div style="margin-bottom:18px; border-bottom:1px solid rgba(212,175,55,0.2); padding-bottom:12px;">
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-                        <span style="background:var(--gold); color:black; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold;">${res.label}</span>
-                        <b style="color:var(--gold);">${res.name} (${res.pos})</b>
+                <div style="margin-bottom:15px; border-bottom:1px solid rgba(212,175,55,0.2); padding-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <span style="background:var(--gold); color:black; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:bold;">${res.label}</span>
+                        <b style="color:var(--gold); font-size:0.95rem;">${res.name} (${res.pos})</b>
                     </div>
-                    <p style="margin:0; font-size:0.9rem; color:#ccc; line-height:1.4;">${res.desc}</p>
+                    <p style="margin:0; font-size:0.85rem; color:#ccc; line-height:1.4;">${res.desc}</p>
                 </div>`;
             });
             content.innerHTML = html;
