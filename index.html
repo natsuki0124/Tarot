@@ -79,7 +79,7 @@
 
         .card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; }
 
-        /* 標籤樣式 */
+        /* 標籤樣式：側邊直式 */
         .card-label {
             position: absolute;
             top: 50%;
@@ -97,8 +97,7 @@
         .card.flipped .card-label { opacity: 1; }
         .card.flipped .card-inner { transform: rotateY(180deg); }
 
-        /* 重要：處理逆位旋轉 */
-        /* 當牌是逆位時，翻開後裡面的圖片旋轉 180 度，但牌框不動 */
+        /* 處理正逆位圖片旋轉 */
         .card.is-reversed .card-back img { transform: rotate(180deg); }
 
         .card-face {
@@ -109,20 +108,18 @@
             border-radius: 6px;
             border: 1px solid rgba(212, 175, 55, 0.3);
             box-sizing: border-box;
-            overflow: hidden; /* 確保圖片旋轉時不會超出邊框 */
+            overflow: hidden;
         }
 
-        /* 關鍵修正：牌背圖片的顯示 */
+        /* 牌背：圖片居中修正 */
         .card-front { 
             background: #000; 
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
-        /* 讓牌背圖片稍微大一點並置中，這樣旋轉 180 度時中心點（水晶球）會完全重合 */
         .card-front img {
-            width: 120%; /* 稍微放大以覆蓋旋轉後的邊角 */
+            width: 120%; 
             height: 120%;
             object-fit: cover;
             transition: transform 0.3s;
@@ -131,7 +128,7 @@
         .card-back { background: #000; transform: rotateY(180deg); }
         .card-back img { width: 101%; height: 101%; object-fit: cover; display: block; }
 
-        /* 解讀面板 */
+        /* 解讀面板：維持原大小與位置，僅供內容捲動 */
         #result-panel {
             position: fixed;
             bottom: 0;
@@ -182,7 +179,6 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.dataset.idx = indices[i];
-                // 結構修正：card-front 裡面加入 img 標籤以便單獨旋轉圖片
                 card.innerHTML = `
                     <div class="card-label"></div>
                     <div class="card-inner">
@@ -206,11 +202,7 @@
                     const x = i < 11 ? -80 : 80;
                     const isReversing = Math.random() > 0.5;
                     c.dataset.isBackReversed = isReversing ? "true" : "false";
-                    
-                    // 動畫時只做位置移動，不做整張牌旋轉，避免使用者追蹤
                     c.style.transform = `translate(${x}px, 0)`;
-                    
-                    // 關鍵：只旋轉內部的牌背圖片
                     const img = c.querySelector('.back-img');
                     img.style.transform = isReversing ? `rotate(180deg)` : `rotate(0deg)`;
                 });
@@ -219,7 +211,6 @@
                 await new Promise(res => setTimeout(res, 500));
             }
 
-            // 直線雙排攤牌
             cards.forEach((c, i) => {
                 let x, y;
                 if (i < 11) {
@@ -229,8 +220,6 @@
                     x = (i - 16) * 32;
                     y = 210;
                 }
-                
-                // 攤牌時整張卡片 rotate(0deg)，僅靠內部圖片決定正反
                 c.style.transform = `translate(${x}px, ${y}px) rotate(0deg)`;
                 c.onclick = () => selectCard(c);
             });
@@ -276,7 +265,6 @@
             }
 
             card.style.zIndex = 1000 + session.selected;
-            // 確保翻開後的牌也是 rotate(0deg)，正逆位由 card.is-reversed 控制裡面的圖片
             card.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1.0) rotate(0deg)`;
 
             session.results.push({ label: currentLabel, name: data.n, pos: isRev ? '逆位' : '正位', desc: isRev ? data.r : data.u });
@@ -299,19 +287,22 @@
             return dict[type] || ['啟示'];
         }
 
+        // 修改此處以放大字體
         function showResult() {
             guideMsg.style.display = 'none';
             const panel = document.getElementById('result-panel');
             const content = document.getElementById('resContent');
-            let html = `<h2 style="color:var(--gold); text-align:center; margin:0 0 15px 0; font-size:1.2rem;">占卜結果</h2>`;
+            
+            let html = `<h2 style="color:var(--gold); text-align:center; margin:0 0 20px 0; font-size:1.5rem;">占卜結果</h2>`;
+            
             session.results.forEach(res => {
                 html += `
-                <div style="margin-bottom:15px; border-bottom:1px solid rgba(212,175,55,0.2); padding-bottom:10px;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                        <span style="background:var(--gold); color:black; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:bold;">${res.label}</span>
-                        <b style="color:var(--gold); font-size:0.95rem;">${res.name} (${res.pos})</b>
+                <div style="margin-bottom:20px; border-bottom:1px solid rgba(212,175,55,0.2); padding-bottom:15px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                        <span style="background:var(--gold); color:black; padding:3px 8px; border-radius:4px; font-size:1rem; font-weight:bold;">${res.label}</span>
+                        <b style="color:var(--gold); font-size:1.25rem;">${res.name} (${res.pos})</b>
                     </div>
-                    <p style="margin:0; font-size:0.85rem; color:#ccc; line-height:1.4;">${res.desc}</p>
+                    <p style="margin:0; font-size:1.15rem; color:#ccc; line-height:1.5;">${res.desc}</p>
                 </div>`;
             });
             content.innerHTML = html;
